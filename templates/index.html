@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching Queries</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Enter your Query</h1>
+
+        <!-- Query input form -->
+        <form action="#" method="POST" class="query-form">
+            <input type="text" name="query" class="query-input" placeholder="Type your query here...">
+            <button type="submit" class="send-button">
+                <i class="fas fa-paper-plane"></i> Send
+            </button>
+        </form>
+
+        <h2>Similar Queries</h2>
+        <!-- Display similar queries here -->
+        <ul class="similar-queries">
+            <li>How to use Flask?</li>
+            <li>What is Python?</li>
+            <li>How to render HTML in Flask?</li>
+        </ul>
+    </div>
+
+</body>
+</html>

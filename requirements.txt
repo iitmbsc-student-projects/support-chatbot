@@ -1,1 +1,8 @@
-Flask
+flask
+langchain_community
+langchain
+faiss-cpu
+sentence-transformers
+langchain-huggingface
+langchain_core
+pandas

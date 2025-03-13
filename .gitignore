@@ -2,3 +2,4 @@
 ./documents
 ./__pycache__
 ./vector_store
+./vector_store_only_subject

@@ -1,8 +1,19 @@
-flask
-langchain_community
-langchain
+# flask
+# langchain_community
+# langchain
+# faiss-cpu
+# sentence-transformers
+# langchain-huggingface
+# langchain_core
+# pandas
+
+# For Demo Purposes 
+
+PyPDF2 
+langchain 
+groq 
+transformers 
 faiss-cpu
-sentence-transformers
+langchain-community
 langchain-huggingface
-langchain_core
-pandas
+IPython

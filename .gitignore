@@ -2,4 +2,3 @@
 ./documents
 ./__pycache__
 ./vector_store
-./*.yaml

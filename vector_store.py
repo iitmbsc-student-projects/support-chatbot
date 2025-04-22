@@ -4,6 +4,9 @@ from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+import PyPDF2
+import re, requests
+from bs4 import BeautifulSoup, NavigableString, Tag
 
 def create_vector_store_from_json(json_file_path, vector_store_path):
     with open(json_file_path, 'r') as f:
@@ -25,6 +28,7 @@ def create_vector_store_from_json(json_file_path, vector_store_path):
 
         all_documents.append(document)
         total_characters += len(doc_content)
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=128000,  
         chunk_overlap=200,  
@@ -61,8 +65,8 @@ def create_vector_store_from_json_using_subject(json_file_path, vector_store_pat
         description = entry.get('description', '').strip()  # Store description as metadata only
 
         document = Document(
-            page_content=subject,  # ✅ Store only subject for embeddings
-            metadata={"subject": subject, "description": description}  # ✅ Keep description in metadata
+            page_content=subject,  # Store only subject for embeddings
+            metadata={"subject": subject, "description": description}  # Keep description in metadata
         )
 
         all_documents.append(document)
@@ -104,7 +108,7 @@ def get_similar_queries(query, vector_store, k=5):
     """
     Find similar queries from the vector store.
     """
-    print("\n🔍 Searching for queries similar to:", query)
+    print("\nSearching for queries similar to:", query)
     
     # Load embeddings
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
@@ -120,13 +124,109 @@ def get_similar_queries(query, vector_store, k=5):
     similar_queries = [doc.page_content.strip().replace("\r", "").replace("\n", " ").split("Description")[0] for doc in similar_documents]
     
     # Print results in a readable format
-    print("\n📌 **Top {} Similar Queries:**".format(k))
+    print(f"\n**Top {k} Similar Queries:**")
     for i, q in enumerate(similar_queries, 1):
         print(f"{i}. {q}")
     
     return similar_queries
 
-# if __name__ == '__main__':
-#     vector_store = load_vector_store("vector_store_only_subject")
-#     similar_queries = get_similar_queries("Quiz 1", vector_store, k=5)
-    # print(similar_queries)
+def create_pdf_chunks(pdf_path, chunk_size=200, overlap=50): # This function will be used to chunk the Student Handbook
+    # Step 1: Convert PDF to text
+    with open(pdf_path, "rb") as file:
+        pdf_reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page_num in range(len(pdf_reader.pages)):
+            page = pdf_reader.pages[page_num]
+            text += page.extract_text() # whole text of the pdf as single string
+
+    # Step 2: Clean up the text
+    """Splits text into sentences using regex."""
+    sentences = re.split(r'(?<=[.?!])\s+', text)  # Split at sentence boundaries
+    cleaned_sentences = []
+    for sent in sentences:
+      sent = sent.replace("\n", " ")  # Replace newlines with spaces
+      sent = re.sub(r'\s+', ' ', sent)  # Replace multiple spaces with a single space
+      cleaned_sentences.append(sent)
+
+    # Step 3: Now we have the whole text of the PDF, create overlapping chunks
+    """Splits a long text into chunks of max `chunk_size` words with `overlap`."""
+    initial_chunks, final_chunks = [], [] # initial_chunks are non-overlapping; final_chunks are overlapping
+    clean_sentences = list(cleaned_sentences)
+    concatenated_text = " ".join(clean_sentences) # Concatenate separated sentences into a single string
+    spaced_list = concatenated_text.split() # Split concatenated text into a list of words
+
+    step = chunk_size - overlap
+    for i in range(0, len(spaced_list), step): # create non-overlapping chunks
+      # print(f"i={i}")
+      initial_chunks.append(spaced_list[i:i + step])
+
+    for i in range(0, len(initial_chunks)-1): # create overlapping chunks
+      temp = list(initial_chunks[i]) # Make a copy
+      # print(f"TEMP = {temp}")
+      temp.extend(initial_chunks[i+1][:overlap])
+      final_chunks.append(' '.join(temp))
+
+    return final_chunks
+
+def create_grading_doc_chunks(grading_doc_url): # We have used URL because it's much easier to chunk the grading doc from URL than from a PDF
+    # Step 1: Get the text from the URL
+    try:
+        response = requests.get(grading_doc_url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, "html.parser")
+    except Exception as e:
+        print(f"Error fetching the URL: {e}")
+        return []
+
+    segments = []
+    current_segment = []
+
+    def traverse(node):
+        nonlocal segments, current_segment
+
+        if isinstance(node, NavigableString):
+            text = node.strip()
+            if text:
+                current_segment.append(text)
+        elif isinstance(node, Tag):
+            # Skip tags that typically don't contribute visible content
+            if node.name in ["script", "style"]:
+                return
+
+            if node.name == "table":
+                if current_segment:
+                    segments.append(" ".join(current_segment).replace("\xa0",""))
+                    current_segment.clear()
+                # Skip the children of the table entirely
+                return
+            else:
+                for child in node.children:
+                    traverse(child)
+
+    # If you know the main content is in a particular container, adjust this
+    start_node = soup.body if soup.body else soup
+    traverse(start_node)
+
+    if current_segment:
+        segments.append(" ".join(current_segment).replace("\xa0",""))
+    keep_indices = [i for i in range(len(segments)) if i not in (0, 1, 3)] # delete 0, 1, 3 indices
+    final_chunks = [segments[i] for i in keep_indices]
+
+    return final_chunks
+
+def create_vector_store_from_docs(pdf_path, grading_doc_url):
+    pdf_chunks = create_pdf_chunks(pdf_path)
+    grading_doc_chunks = create_grading_doc_chunks(grading_doc_url)
+    hf_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    vector_store = FAISS.from_texts(pdf_chunks+grading_doc_chunks, hf_embeddings)
+    return vector_store
+
+
+if __name__ == "__main__":
+    pdf_path = "documents/Student_Handbook_latest.pdf"
+    grading_doc_url = "https://docs.google.com/document/d/e/2PACX-1vRBH1NuM3ML6MH5wfL2xPiPsiXV0waKlUUEj6C7LrHrARNUsAEA1sT2r7IHcFKi8hvQ45gSrREnFiTT/pub?urp=gmail_link"
+    latest_vector_store = create_vector_store_from_docs(pdf_path, grading_doc_url)
+    vector_store_path = "LATEST_VECTOR_STORE"
+    latest_vector_store.save_local(vector_store_path)
+
+    

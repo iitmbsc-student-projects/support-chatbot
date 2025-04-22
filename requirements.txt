@@ -17,3 +17,4 @@ faiss-cpu
 langchain-community
 langchain-huggingface
 IPython
+bs4

@@ -10,14 +10,14 @@ from IPython.display import Markdown as md
 from groq import Groq
 import yaml
 
-with open("config.yaml", "r") as file:
-    config = yaml.safe_load(file)
+# with open("config.yaml", "r") as file:
+#     config = yaml.safe_load(file)
 model = None
 
 # groq_api_key = config["GROQ_API_KEY"]
 # os.environ["GROQ_API_KEY"] = config["GROQ_API_KEY"]
 
-groq_api_key = config["GROQ_API_KEY"]
+groq_api_key = os.environ["GROQ_API_KEY"]
 
 hf_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
@@ -31,8 +31,10 @@ Answer only based on the content from the document and do not make up any inform
 client = Groq(api_key=groq_api_key)
 
 def query_model_with_rag(query, vector_store):
+    # print(f" Recieved query is {query}")
     relevant_chunks = vector_store.similarity_search(query, k=3)
     context = "\n".join([doc.page_content for doc in relevant_chunks])
+    # print(f" Recieved CONTEXT is {context}")
     prompt = system_prompt + "\n\nContext:\n" + context + "\n\nQuestion: " + query + "\nAnswer:"
     chat_completion = client.chat.completions.create(
         messages=[{"role": "user", "content": prompt}],

@@ -17,7 +17,7 @@ model = None
 # groq_api_key = config["GROQ_API_KEY"]
 # os.environ["GROQ_API_KEY"] = config["GROQ_API_KEY"]
 
-groq_api_key = os.environ.get("GROQ_API_KEY")
+groq_api_key = config["GROQ_API_KEY"]
 
 hf_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 

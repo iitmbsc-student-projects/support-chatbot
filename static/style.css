@@ -1,87 +1,215 @@
-/* Reset some default styles */
-body, h1, h2, form, ul {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-}
-
-/* Overall page styling */
 body {
-    background-color: #f4f4f4;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Container for the content */
+.auth-container {
+  width: 1100px;
+  background-color: #fff;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-right: 10px;
+  text-align: right;
+  font-family: "Roboto", sans-serif;
+  font-size: large;
+}
+
+.auth-container p {
+  display: inline;
+  margin-right: 10px;
+  color: #164e63;
+}
+
+.auth-container a {
+  color: #06b6d4;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-container a:hover {
+  color: #0e7490;
+}
+
 .container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 400px;
-    text-align: center;
+  width: 1100px;
+  height: 650px;
+  background: #fff;
+  padding-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-/* Heading styling */
 h1 {
-    font-size: 24px;
-    color: #333;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  text-align: left;
+  font-family: "Roboto", sans-serif;
+  font-size: x-large;
+  color: #164e63;
 }
 
-/* Styling for the query input box */
-.query-input {
-    width: 80%;
-    padding: 10px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
+#chat-box {
+  height: 450px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  background: #f9f9f9;
 }
 
-/* Styling for the Send button */
-.send-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.message {
+  margin: 5px 0;
+  text-align: left;
 }
 
-.send-button i {
-    margin-right: 8px;
+.message.user {
+  text-align: right;
+  color: #155e75;
+  background-color: #cffafe;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  float: right;
+  font-family: "Roboto", sans-serif;
+  font-size: large;
 }
 
-.send-button:hover {
-    background-color: #45a049;
+.message.bot {
+  text-align: left;
+  color: #0e7490;
+  background-color: #ecfeff;
+  border-radius: 5px;
+  margin-top: 50px;
+  padding: 10px;
+  font-family: "Roboto", sans-serif;
+  font-size: large;
+  max-width: 66%;
 }
 
-/* Smaller heading for similar queries */
-h2 {
-    font-size: 20px;
-    margin-top: 20px;
-    color: #555;
+/* #user-input {
+  width: calc(100% - 50px);
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
-/* Styling for the list of similar queries */
-.similar-queries {
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 10px;
+#send-btn {
+  padding: 10px 20px;
+  margin-top: 5px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.similar-queries li {
-    background-color: #f9f9f9;
-    padding: 8px;
-    margin: 5px 0;
-    border-radius: 4px;
-    border: 1px solid #ddd;
+#send-btn:hover {
+  background: #0056b3;
+} */
+
+.input-container {
+  position: absolute;
+  width: 1100px;
 }
 
-.similar-queries li:hover {
-    background-color: #f1f1f1;
+#user-input {
+  width: 1050px;
+  padding: 10px 10px 10px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: "Roboto", sans-serif;
+  font-size: large;
+}
+
+#send-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+#send-btn i {
+  color: #06b6d4;
+  font-size: 18px;
+}
+
+#send-btn:hover i {
+  color: #0e7490;
+}
+
+.alert-box {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.alert-content {
+  position: relative;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.alert-content h2 {
+  margin-top: 0;
+  color: #164e63;
+}
+
+.alert-content p {
+  color: #164e63;
+}
+
+.alert-content ul {
+  text-align: left;
+  padding-left: 20px;
+  color: #164e63;
+}
+
+.alert-content button {
+  background: #06b6d4;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.alert-content button:hover {
+  background: #0e7490;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #06b6d4;
+}
+
+.close-btn:hover {
+  color: #0e7490;
 }

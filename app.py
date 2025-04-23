@@ -21,7 +21,7 @@ def get_answer_from_llm():
     return jsonify({"response": answer})
 
 if __name__ == '__main__':
-    vector_store_path = "Vector_store"
+    vector_store_path = "vector_store"
 
     if len(os.listdir(vector_store_path))==0:
         # Step 1: Create a vector store

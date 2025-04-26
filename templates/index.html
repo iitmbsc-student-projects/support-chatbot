@@ -1,91 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Support Chatbot</title>
-    <link rel="stylesheet" href="/static/style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Chatbot</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.6/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.0/purify.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
-  </head>
-  <body>    
-    <div class="container">
-      <div class="auth-container">
-        <!-- <p>Welcome, {{ user_name }}!</p> -->
-        {# <a href="{{ url_for('logout') }}">Logout</a> #}
+</head>
 
-      </div>
+<body>
+  {% if "user" in session %}
+  <!-- CODE FOR LOGOUT-->
 
-      <div id="alert-box" class="alert-box">
-        <div class="alert-content">
-          <span class="close-btn" onclick="closeAlert()">&times;</span>
-          <h2>Welcome to Support Chatbot</h2>
-          <p>Example prompts:</p>
-          <ul>
-            <li>What is IITM BS?</li>
-          </ul>
-          <button onclick="closeAlert()">Let's Dive In</button>
-        </div>
-      </div>
-
-      <h1>Support Chatbot</h1>
-      <div id="chat-box"></div>
-      <div class="input-container">
-        <input
-          type="text"
-          id="user-input"
-          placeholder="Type your message here..."
-          autofocus
-        />
-        <button id="send-btn">
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
+    <div id="alert-box" class="alert-box">
+      <div class="alert-content">
+        <span class="close-btn" onclick="closeAlert()">&times;</span>
+        <h2>Welcome to Support Chatbot</h2>
+        <p>Example prompts:</p>
+        <ul>
+          <li>What is IITM BS?</li>
+        </ul>
+        <button onclick="closeAlert()">Let's Dive In</button>
       </div>
     </div>
 
-    <script>
-      const chatBox = document.getElementById("chat-box");
-      const userInput = document.getElementById("user-input");
-      const sendBtn = document.getElementById("send-btn");
+    <h1>Support Chatbot</h1>
+    <div id="chat-box"></div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Type your message here..." autofocus />
+      <button id="send-btn">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
 
-      function closeAlert() {
-        document.getElementById('alert-box').style.display = 'none';
-      }
+  <script>
+    const chatBox = document.getElementById("chat-box");
+    const userInput = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send-btn");
 
-      function sendMessage() {
-        const message = userInput.value.trim();
-        if (!message) return;
-        chatBox.innerHTML += `<div class="message user">${message}</div>`;
-        userInput.value = "";
+    function closeAlert() {
+      document.getElementById('alert-box').style.display = 'none';
+    }
 
-        fetch("/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message }),
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (!message) return;
+      chatBox.innerHTML += `<div class="message user">${message}</div>`;
+      userInput.value = "";
+
+      fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          const botMessage = data.response;
+          const renderedMessage = DOMPurify.sanitize(marked.parse(botMessage));
+          chatBox.innerHTML += `<div class="message bot">${renderedMessage}</div>`;
+          if (data.stop) {
+            chatBox.innerHTML += `<div class="message bot">Chat ended.</div>`;
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+          }
+          chatBox.scrollTop = chatBox.scrollHeight;
         })
-          .then((response) => response.json())
-          .then((data) => {
-            const botMessage = data.response;
-            const renderedMessage = DOMPurify.sanitize(marked.parse(botMessage));
-            chatBox.innerHTML += `<div class="message bot">${renderedMessage}</div>`;
-            if (data.stop) {
-              chatBox.innerHTML += `<div class="message bot">Chat ended.</div>`;
-              userInput.disabled = true;
-              sendBtn.disabled = true;
-            }
-            chatBox.scrollTop = chatBox.scrollHeight;
-          })
-          .catch((error) => console.error("Error:", error));
+        .catch((error) => console.error("Error:", error));
+    }
+    sendBtn.addEventListener("click", sendMessage);
+    userInput.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+        sendMessage();
       }
-      sendBtn.addEventListener("click", sendMessage);
-      userInput.addEventListener("keypress", (event) => {
-        if (event.key === "Enter") {
-          sendMessage();
-        }
-      });
-    </script>
-  </body>
+    });
+  </script>
+  {% else %}
+  <a href="{{ url_for('login') }}" class="login-btn">Login with Google</a>
+  {% endif %}
+
+</body>
+
 </html>

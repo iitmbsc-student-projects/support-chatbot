@@ -211,14 +211,63 @@ def create_grading_doc_chunks(grading_doc_url): # We have used URL because it's 
         segments.append(" ".join(current_segment).replace("\xa0",""))
     keep_indices = [i for i in range(len(segments)) if i not in (0, 1, 3)] # delete 0, 1, 3 indices
     final_chunks = [segments[i] for i in keep_indices]
+    # D = {}
+    # for i,chunk in enumerate(final_chunks):
+    #     D[f"i"] = chunk
+    # with open("GD_chunks.json","w") as f:
+    #     json.dump(f, D, indent=4)
+
+    return final_chunks
+
+from bs4 import BeautifulSoup
+import requests
+import re
+
+def extract_chunks_by_header_without_tables(url):
+    # Step 1: Fetch and clean HTML
+    response = requests.get(url)
+    html = response.text
+    cleaned_html = re.sub(r'<table.*?>.*?</table>', '', html, flags=re.DOTALL | re.IGNORECASE)
+
+    # Step 2: Parse with BeautifulSoup
+    soup = BeautifulSoup(cleaned_html, 'html.parser')
+
+    # Step 3: Extract chunks
+    chunks = {}
+    headers = soup.find_all(['h1', 'h2'])
+
+    for i, header in enumerate(headers):
+        key = header.get_text(strip=True)
+        content = []
+
+        # Traverse next siblings until the next header
+        for sibling in header.find_next_siblings():
+            if sibling.name and sibling.name.lower() in ['h1', 'h2']:
+                break
+            text = sibling.get_text(strip=True, separator=' ')
+            if text:
+                content.append(text)
+
+        chunks[key] = ' '.join(content).replace("&nbsp:","").replace("\u00a0","").replace("\u00b7","").replace("\u2014","").replace("\u00a0","").replace("\u2013","")
+    
+    keys_to_remove = ["ASSIGNMENT DEADLINES:","Bonus Marks","Suggested pathway to register and study Foundation level courses:","Diploma Level courses","Suggested pathway to register and study Diploma level courses:","Diploma level courses","Degree Level courses","Annexure I"]
+    for key in chunks.keys():
+        if (key.strip()=="" or chunks[key].strip()=="") and (key not in keys_to_remove):
+            keys_to_remove.append(key)
+
+    for key in keys_to_remove:
+        chunks.pop(key)
+
+    final_chunks = [f"Grading policy for {key}:\t {value}\n" for key, value in chunks.items()]
 
     return final_chunks
 
 def create_vector_store_from_docs(pdf_path, grading_doc_url):
     pdf_chunks = create_pdf_chunks(pdf_path)
-    grading_doc_chunks = create_grading_doc_chunks(grading_doc_url)
+    # grading_doc_chunks = create_grading_doc_chunks(grading_doc_url)
+    new_grading_doc_chunks = extract_chunks_by_header_without_tables(grading_doc_url)
     hf_embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vector_store = FAISS.from_texts(pdf_chunks+grading_doc_chunks, hf_embeddings)
+    vector_store = FAISS.from_texts(pdf_chunks+new_grading_doc_chunks, hf_embeddings)
     return vector_store
 
 

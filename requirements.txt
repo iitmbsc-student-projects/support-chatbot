@@ -1,14 +1,11 @@
-# flask
-# langchain_community
-# langchain
-# faiss-cpu
-# sentence-transformers
-# langchain-huggingface
-# langchain_core
-# pandas
-
-# For Demo Purposes 
-
+flask
+langchain_community
+langchain
+faiss-cpu
+sentence-transformers
+langchain-huggingface
+langchain_core
+pandas
 PyPDF2 
 langchain 
 groq 

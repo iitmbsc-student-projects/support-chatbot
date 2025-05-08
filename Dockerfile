@@ -4,10 +4,9 @@ COPY ./requirements.txt /app/requirements.txt
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && pip install --no-cache-dir -r requirements.txt \
-    && apt-get purge -y --auto-remove build-essential
+RUN apk update && apk add --no-cache build-base && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apk del build-base
 
 COPY . /app
 

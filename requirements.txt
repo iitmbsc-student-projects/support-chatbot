@@ -1,19 +1,20 @@
+torch
 flask
 langchain_community
 langchain
 faiss-cpu
-sentence-transformers==3.2.1
+sentence-transformers
 langchain-huggingface
 langchain_core
 pandas
 PyPDF2 
 langchain 
 groq 
-transformers==4.46.3
+transformers
 faiss-cpu
 langchain-community
 langchain-huggingface
 IPython
 bs4
 authlib
-torch==2.4.0+cpu --index-url https://download.pytorch.org/whl/cpu
+

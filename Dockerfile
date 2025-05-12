@@ -1,16 +1,13 @@
-FROM python:3.12-alpine
-
-COPY ./requirements.txt /app/requirements.txt
+FROM continuumio/miniconda3
 
 WORKDIR /app
 
-RUN apk update && apk add --no-cache build-base && \
-    pip install --no-cache-dir -r requirements.txt && \
-    apk del build-base
-
 COPY . /app
+
+RUN pip3 install -r requirements.txt --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple && pip3 cache purge && conda clean --all
 
 EXPOSE 8080
 
-# CMD ["/bin/sh"]
-CMD ["python", "app.py"]
+ENV FLASK_APP=app.py
+
+CMD ["python3", "app.py"]

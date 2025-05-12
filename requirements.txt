@@ -9,7 +9,7 @@ pandas
 PyPDF2 
 langchain 
 groq 
-transformers==4.46.3
+transformers 
 faiss-cpu
 langchain-community
 langchain-huggingface

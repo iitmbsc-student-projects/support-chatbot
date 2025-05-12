@@ -2,14 +2,14 @@ flask
 langchain_community
 langchain
 faiss-cpu
-sentence-transformers
+sentence-transformers==3.2.1
 langchain-huggingface
 langchain_core
 pandas
 PyPDF2 
 langchain 
 groq 
-transformers 
+transformers==4.46.3
 faiss-cpu
 langchain-community
 langchain-huggingface

@@ -22,6 +22,10 @@ google = oauth.register( # Then you told OAuth: Hey OAuth
 def home():
     return render_template('index.html')
 
+@app.route("/healthz")
+def health_check():
+    return "ok", 200
+
 @app.route("/chat", methods=["POST"])
 def get_answer_from_llm():
     query = request.get_json().get("message")

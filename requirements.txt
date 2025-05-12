@@ -9,10 +9,11 @@ pandas
 PyPDF2 
 langchain 
 groq 
-transformers 
+transformers==4.46.3
 faiss-cpu
 langchain-community
 langchain-huggingface
 IPython
 bs4
 authlib
+torch==2.4.0+cpu --index-url https://download.pytorch.org/whl/cpu
